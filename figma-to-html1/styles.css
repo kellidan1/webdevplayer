@@ -12,16 +12,17 @@
 /* Sidebar */
 .sidebar {
     width: 20vw;
-    /* Adjust width relative to the screen */
     height: 85vh;
-    /* Make it scale with the viewport */
     background: rgba(0, 0, 0, 0.25);
     position: absolute;
     top: 10vh;
     left: 0.8vw;
-    border-radius: 12px;
-    /* Optional: Add rounded corners for a modern look */
+    border-radius: 10px;
+    padding-top: 10px;
+    padding-left: 20px;
+    box-sizing: border-box;
 }
+
 
 .theme-button-full {
     width: 10vw;
@@ -182,7 +183,7 @@
     font-family: Outfit, sans-serif;
     font-size: clamp(14px, 1.5vw, 18px);
     font-weight: 500;
-    padding: 10px 25px;
+    padding: 10px 20px;
     border-radius: 999px;
     /* pill shape / circle-ish */
     border: 2px solid transparent;
@@ -204,25 +205,27 @@
 .content-wrapper {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 20px 10px 50px 10px;
-    margin-top: 30px;
-    left: 5%;
-    position: relative;
+    gap: 25px;
+    margin-top: 20px;
 }
 
 .box {
-    width: 75%;
-    aspect-ratio: 1/1;
+    width: 80%;
+    aspect-ratio: 1 / 1;
     background: black;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
-.box img {
+
+/* .box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
+} */
 
 .close-btn {
     position: absolute;
@@ -239,4 +242,8 @@
     justify-content: center;
     border-radius: 50%;
     cursor: pointer;
+}
+
+.close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
