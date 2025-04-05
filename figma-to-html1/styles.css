@@ -168,3 +168,35 @@
     opacity: 1;
     border-radius: 50%;
 }
+
+.menu-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.menu-button {
+    color: #fff;
+    font-family: Outfit, sans-serif;
+    font-size: clamp(14px, 1.5vw, 18px);
+    font-weight: 500;
+    padding: 10px 25px;
+    border-radius: 999px;
+    /* pill shape / circle-ish */
+    border: 2px solid transparent;
+    background-color: #000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-button.active {
+    background-color: #fff;
+    color: #000;
+    font-weight: 700;
+}

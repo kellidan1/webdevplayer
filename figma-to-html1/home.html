@@ -14,7 +14,13 @@
 
 <body>
     <div class="bg">
-        <div class="sidebar"></div>
+        <div class="sidebar">
+            <div class="menu-wrapper">
+                <button class="menu-button active">Queue</button>
+                <button class="menu-button">Library</button>
+            </div>
+
+        </div>
         <div class="theme-button-full">
             <div class="theme-button-box">
                 <div class="theme-button"></div>
@@ -23,13 +29,20 @@
         <div class="cdCover">
             <div class="cd"></div>
         </div>
-
-        <div class="v122_57">
-            <div class="v122_56"></div>
-            <div class="v122_52"></div>
-        </div>
     </div>
 
+
+    <script>
+        const buttons = document.querySelectorAll('.menu-button');
+
+        buttons.forEach(button => {
+            button.addEventListener('click', function () {
+                document.querySelector('.menu-button.active')?.classList.remove('active');
+                this.classList.add('active');
+            });
+        });
+
+    </script>
 </body>
 
 </html>
