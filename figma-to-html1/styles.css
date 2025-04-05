@@ -247,3 +247,71 @@
 .close-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+.profile-btn {
+    position: absolute;
+    top: 2vh;
+    right: 2vw;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    /* makes it perfectly circular */
+    padding: 4px;
+    /* small padding around image */
+    cursor: pointer;
+    transition: background 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px;
+    height: 50px;
+    /* Fixed width & height to keep it circular */
+}
+
+.profile-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-btn img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* ensures image inside is also circular */
+    object-fit: cover;
+    /* avoid stretching */
+}
+
+
+
+/* Right Controls - Center Right */
+.right-controls {
+    position: absolute;
+    top: 50%;
+    right: 0.8vw;
+    transform: translateY(-50%);
+    width: 4vw;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.icon {
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.icon:hover {
+    transform: scale(1.2);
+}
