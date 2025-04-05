@@ -23,45 +23,13 @@
     /* Optional: Add rounded corners for a modern look */
 }
 
-/* Responsive Adjustments */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 26vw;
-        /* Slightly increase for better visibility */
-        height: 80vh;
-        top: 8vh;
-        left: 3vw;
-    }
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        width: 30vw;
-        /* More space on smaller screens */
-        height: 75vh;
-        top: 6vh;
-        left: 4vw;
-    }
-}
-
-@media (max-width: 480px) {
-    .sidebar {
-        width: 90%;
-        /* Full width for mobile */
-        height: 70vh;
-        top: 5vh;
-        left: 5%;
-    }
-}
-
 .theme-button-full {
     width: 10vw;
     /* Scales with viewport width */
     height: 10vw;
     max-width: 60px;
-    /* Prevents it from becoming too large */
     max-height: 60px;
-    background: url("../images/v115_63.png") no-repeat center center;
+    background: url("../images/v115_63.png") no-repeat center;
     background-size: cover;
     position: absolute;
     top: 1vw;
@@ -94,8 +62,41 @@
     /* Fully circular */
 }
 
-/* Responsive adjustments */
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 26vw;
+        /* Slightly increase for better visibility */
+        height: 80vh;
+        top: 8vh;
+        left: 3vw;
+    }
+
+    .theme-button-full {
+        width: 15vw;
+        height: 15vw;
+    }
+
+    .theme-button-box {
+        width: 13vw;
+        height: 13vw;
+    }
+
+    .theme-button {
+        width: 10vw;
+        height: 10vw;
+    }
+}
+
 @media (max-width: 768px) {
+    .sidebar {
+        width: 30vw;
+        /* More space on smaller screens */
+        height: 75vh;
+        top: 6vh;
+        left: 4vw;
+    }
+
     .theme-button-full {
         width: 12vw;
         height: 12vw;
@@ -114,6 +115,13 @@
 }
 
 @media (max-width: 480px) {
+    .sidebar {
+        width: 90%;
+        height: 70vh;
+        top: 5vh;
+        left: 5%;
+    }
+
     .theme-button-full {
         width: 15vw;
         height: 15vw;
@@ -130,39 +138,33 @@
     }
 }
 
+.cdCover {
+    width: 60vw;
+    /* Increased from 40vw to 60vw */
+    height: 60vw;
+    max-width: 700px;
+    /* Larger max */
+    max-height: 700px;
+    min-width: 250px;
+    /* Bigger minimum */
+    min-height: 250px;
+    background: rgba(33, 33, 33, 1);
+    position: absolute;
+    top: 5vh;
+    /* Slightly higher up */
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-
-.v115_60 {
-    width: 700px;
-    height: 700px;
-    background: url("../images/v115_60.png");
-    background-repeat: no-repeat;
-    background-position: center center;
+.cd {
+    width: 35%;
+    height: 35%;
+    background: url("images/v115_62.png") no-repeat center center;
     background-size: cover;
     opacity: 1;
-    position: absolute;
-    top: 41px;
-    left: 754px;
-    overflow: hidden;
-}
-
-.v115_61 {
-    width: 700px;
-    height: 700px;
-    background: rgba(33, 33, 33, 1);
-    opacity: 1;
-    position: absolute;
-    top: 0px;
-    left: 0px;
     border-radius: 50%;
-}
-
-.v115_62 {
-    width: 245px;
-    height: 245px;
-    background: url("../images/v115_62.png");
-    opacity: 1;
-    position: absolute;
-    top: 306px;
-    left: 100px;
 }
