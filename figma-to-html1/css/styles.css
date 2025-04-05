@@ -168,6 +168,7 @@
     opacity: 1;
     border-radius: 50%;
     display: block;
+    transition: transform 0.05s linear;
 }
 
 .menu-wrapper {
@@ -314,4 +315,59 @@
 
 .icon:hover {
     transform: scale(1.2);
+}
+
+.now-playing {
+    position: absolute;
+    bottom: 2vh;
+    right: 2vw;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 15px 20px;
+    border-radius: 15px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 220px;
+}
+
+.song-info {
+    text-align: center;
+}
+
+.song-title {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.song-artist {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.song-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    background: #444;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress {
+    height: 100%;
+    background: white;
+    width: 0%;
+    transition: width 0.3s linear;
+}
+
+.current-time,
+.duration {
+    font-size: 0.75rem;
 }

@@ -59,6 +59,22 @@
             </div>
         </div>
 
+        <div class="now-playing">
+            <div class="song-info">
+                <div class="song-title">Happier</div>
+                <div class="song-artist">Marshmello, Bastille</div>
+            </div>
+            <div class="song-time">
+                <span class="current-time">0:00</span>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <span class="duration">3:34</span>
+            </div>
+        </div>
+
+
+
     </div>
 
 
@@ -72,6 +88,45 @@
             });
         });
 
+        const progress = document.querySelector('.progress');
+        const currentTimeEl = document.querySelector('.current-time');
+        const durationEl = document.querySelector('.duration');
+
+        // Example values
+        let currentTime = 0;
+        let duration = 214; // seconds (3:34)
+
+        durationEl.textContent = formatTime(duration);
+
+        setInterval(() => {
+            if (currentTime < duration) {
+                currentTime++;
+                progress.style.width = (currentTime / duration) * 100 + '%';
+                currentTimeEl.textContent = formatTime(currentTime);
+            }
+        }, 1000);
+
+        function formatTime(sec) {
+            const minutes = Math.floor(sec / 60);
+            const seconds = sec % 60;
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        const vinyl = document.querySelector('.cd');
+        let startTime = null;
+
+        function animateVinyl(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = (timestamp - startTime) / 50;  // seconds passed
+
+            if (currentTime < duration) {
+                const rotation = (elapsed / duration) * 360;
+                vinyl.style.transform = `rotate(${rotation}deg)`;
+            }
+
+            requestAnimationFrame(animateVinyl);
+        }
+
+        requestAnimationFrame(animateVinyl);
     </script>
 </body>
 
