@@ -1,0 +1,19 @@
+{
+  "name": "waxflow-vinyl-player",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.8.4",
+    "express": "^5.1.0",
+    "querystring": "^0.2.1"
+  }
+}
