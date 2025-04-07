@@ -13,10 +13,11 @@
     <div class="bg">
         <div class="sidebar">
             <div class="menu-wrapper">
-                <button class="menu-button active">Queue</button>
-                <button class="menu-button">Library</button>
+                <button class="menu-button active" data-section="queue">Queue</button>
+                <button class="menu-button" data-section="library">Library</button>
             </div>
-            <div class="content-wrapper">
+            <div class="content-wrapper" id="content-wrapper">
+                <!-- Initial content will be replaced based on section -->
                 <div class="box"></div>
                 <div class="box"></div>
                 <div class="box"></div>
@@ -36,8 +37,7 @@
         </div>
 
         <div class="cdCover">
-            <img class="cd" src="images/v115_62.png" alt="CD Cover">
-            <img class="album-art" src="" alt="Album Art" style="display: none;">
+            <img class="cd" src="images/v115_62.png" alt="Album Art" alt="CD Cover">
         </div>
 
         <!-- Profile Button -->
@@ -71,90 +71,7 @@
         </div>
     </div>
 
-    <script>
-        // Menu button toggle
-        const buttons = document.querySelectorAll('.menu-button');
-        buttons.forEach(button => {
-            button.addEventListener('click', function () {
-                document.querySelector('.menu-button.active')?.classList.remove('active');
-                this.classList.add('active');
-            });
-        });
-
-        // Elements
-        const songTitle = document.querySelector('.song-title');
-        const songArtist = document.querySelector('.song-artist');
-        const progress = document.querySelector('.progress');
-        const currentTimeEl = document.querySelector('.current-time');
-        const durationEl = document.querySelector('.duration');
-        const vinyl = document.querySelector('.cd');
-
-        // Fetch current song from backend
-        async function fetchCurrentSong() {
-            try {
-                const response = await fetch('/current-song');
-                const data = await response.json();
-                songTitle.textContent = data.title;
-                songArtist.textContent = data.artist;
-                durationEl.textContent = formatTime(data.duration);
-                updateProgress(data.progress, data.duration);
-                if (data.image) {
-                    vinyl.src = data.image
-                    vinyl.style.display = 'block';
-                } else {
-                    vinyl.style.display = 'none';
-                }
-            } catch (error) {
-                console.error('Error fetching song:', error);
-                songTitle.textContent = 'Error';
-                songArtist.textContent = 'Could not load song';
-                vinyl.style.display = 'none';
-            }
-        }
-
-        // Update progress bar and time
-        function updateProgress(currentTime, duration) {
-            progress.style.width = (currentTime / duration) * 100 + '%';
-            currentTimeEl.textContent = formatTime(currentTime);
-        }
-
-        // Format time in MM:SS
-        function formatTime(sec) {
-            const minutes = Math.floor(sec / 60);
-            const seconds = sec % 60;
-            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        }
-
-        // Vinyl and album art animation
-        let startTime = null;
-        function animateVinyl(timestamp) {
-            if (!startTime) startTime = timestamp;
-            const elapsed = (timestamp - startTime) / 1000; // seconds
-            const rotation = (elapsed % 10) * 36; // Full rotation every 10 seconds
-            vinyl.style.transform = `rotate(${rotation}deg)`;
-            if (vinyl.style.display !== 'none') {
-                vinyl.style.transform = `rotate(${rotation}deg)`; // Sync album art rotation
-            }
-            requestAnimationFrame(animateVinyl);
-        }
-        requestAnimationFrame(animateVinyl);
-
-        // Control button handlers
-        document.getElementById('shuffle').addEventListener('click', () => fetch('/shuffle'));
-        document.getElementById('previous').addEventListener('click', () => {
-            fetch('/previous').then(fetchCurrentSong);
-        });
-        document.getElementById('play').addEventListener('click', () => {
-            fetch('/play').then(fetchCurrentSong);
-        });
-        document.getElementById('next').addEventListener('click', () => {
-            fetch('/next').then(fetchCurrentSong);
-        });
-        document.getElementById('repeat').addEventListener('click', () => console.log('Repeat not implemented'));
-
-        // Poll song info every 5 seconds
-        fetchCurrentSong();
-        setInterval(fetchCurrentSong, 5000);
-    </script>
+    <!-- Link to external JavaScript file -->
+    <script src="js/script.js"></script>
 </body>
 </html>

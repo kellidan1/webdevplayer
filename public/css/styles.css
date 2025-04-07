@@ -219,14 +219,26 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: relative;
 }
-
-
-/* .box img {
+.box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-} */
+}
+.box span {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgb(0, 0, 0);
+    font-size: 0.8rem;
+    text-align: center;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .close-btn {
     position: absolute;

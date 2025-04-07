@@ -11,7 +11,8 @@ const CLIENT_SECRET = Bun.env.CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:3000/callback';
 const scopes = [
   'user-read-playback-state',
-  'user-modify-playback-state'
+  'user-modify-playback-state',
+  'playlist-read-private' // Added for playlist access
 ].join(' ');
 
 // Store tokens
@@ -103,19 +104,16 @@ async function checkToken(req, res, next) {
 // 5. Get currently playing song
 app.get('/current-song', checkToken, async (req, res) => {
   try {
-    // console.log('Fetching current song with token:', accessToken); // Debug
     const response = await fetch('https://api.spotify.com/v1/me/player', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
-    // console.log('Spotify API response status:', response.status); // Debug
     if (response.status === 204 || !response.ok) {
       console.log('No song playing or error, returning default response');
       return res.json({ title: 'No song playing', artist: '', album: '', image: '', progress: 0, duration: 0 });
     }
 
     const data = await response.json();
-    // console.log('Spotify API data:', data); // Debug
     const { item, progress_ms, duration_ms } = data;
     const songInfo = {
       title: item.name,
@@ -127,7 +125,6 @@ app.get('/current-song', checkToken, async (req, res) => {
     };
     res.json(songInfo);
   } catch (error) {
-    // console.error('Error in /current-song:', error); // Debug
     if (error.message.includes('401')) {
       console.log('Token expired, refreshing...');
       await refreshAccessToken();
@@ -195,6 +192,58 @@ app.get('/shuffle', checkToken, async (req, res) => {
     res.send('Shuffle enabled');
   } catch (error) {
     res.status(500).send('Error enabling shuffle');
+  }
+});
+
+// 7. Toggle repeat mode
+app.get('/repeat', checkToken, async (req, res) => {
+  try {
+    // Get current repeat state (optional, for cycling states)
+    const playerState = await fetch('https://api.spotify.com/v1/me/player', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const playerData = await playerState.json();
+    let currentState = playerData.repeat_state || 'off'; // Default to 'off' if not set
+
+    // Cycle through states: off -> context -> track -> off
+    let newState = 'off';
+    if (currentState === 'off') newState = 'context';
+    else if (currentState === 'context') newState = 'track';
+    else if (currentState === 'track') newState = 'off';
+
+    await fetch(`https://api.spotify.com/v1/me/player/repeat?state=${newState}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    res.send(`Repeat mode set to ${newState}`);
+  } catch (error) {
+    res.status(500).send('Error toggling repeat mode');
+  }
+});
+
+// 8. Fetch user's playlists
+app.get('/user-playlists', checkToken, async (req, res) => {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const playlists = data.items.map(playlist => ({
+      id: playlist.id,
+      name: playlist.name,
+      description: playlist.description || 'No description',
+      image: playlist.images[0]?.url || '',
+    }));
+    res.json(playlists);
+  } catch (error) {
+    console.error('Error fetching playlists:', error);
+    res.status(500).send('Error fetching user playlists');
   }
 });
 
