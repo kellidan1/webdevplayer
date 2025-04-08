@@ -18,8 +18,7 @@ buttons.forEach(button => {
         if (section === 'library') {
             fetchPlaylists();
         } else if (section === 'queue') {
-            // Placeholder for queue content (empty boxes for now)
-            contentWrapper.innerHTML = Array(8).fill().map(() => '<div class="box"></div>').join('') + '<div class="close-btn">X</div>';
+            fetchQueue();
         }
     });
 });
@@ -33,19 +32,12 @@ async function fetchCurrentSong() {
         songArtist.textContent = data.artist;
         durationEl.textContent = formatTime(data.duration);
         updateProgress(data.progress, data.duration);
-        if (data.image) {
-            vinyl.src = data.image; // Use album-art for the image
-            vinyl.style.display = 'block';
-        } else {
-            vinyl.style.display = 'none';
-            vinyl.style.display = 'block'; // Show default vinyl if no image
-        }
+        vinyl.src = data.image ?? 'images/default_disc_cover.png'; // Keep vinyl as the base image
+
     } catch (error) {
         console.error('Error fetching song:', error);
         songTitle.textContent = 'Error';
         songArtist.textContent = 'Could not load song';
-        vinyl.style.display = 'none';
-        vinyl.style.display = 'block'; // Show default vinyl on error
     }
 }
 
@@ -104,9 +96,12 @@ document.getElementById('play').addEventListener('click', () => {
 document.getElementById('next').addEventListener('click', () => {
     fetch('/next', { method: 'GET' })
         .then(response => response.text())
-        .then(message => console.log(message))
-        .catch(error => console.error('Error skipping to next:', error))
-        .finally(() => fetchCurrentSong());
+        .then(message => {
+            console.log(message);
+            fetchQueue(); // Refresh queue after next song
+            fetchCurrentSong(); // Refresh song info
+        })
+        .catch(error => console.error('Error skipping to next:', error));
 });
 
 document.getElementById('repeat').addEventListener('click', () => {
@@ -133,6 +128,24 @@ async function fetchPlaylists() {
     } catch (error) {
         console.error('Error fetching playlists:', error);
         contentWrapper.innerHTML = '<div class="box">Failed to load playlists</div><div class="close-btn">X</div>';
+    }
+}
+
+// Fetch user's playback queue (limited to 8 items)
+async function fetchQueue() {
+    try {
+        const response = await fetch('/queue');
+        const queue = await response.json();
+        const limitedQueue = queue.slice(0, 8); // Limit to 8 items
+        contentWrapper.innerHTML = limitedQueue.map(track => `
+            <div class="box">
+                <img src="${track.image || 'images/default-placeholder.png'}" alt="${track.name}">
+                <span>${track.name} - ${track.artist}</span>
+            </div>
+        `).join('') + '<div class="close-btn">X</div>';
+    } catch (error) {
+        console.error('Error fetching queue:', error);
+        contentWrapper.innerHTML = '<div class="box">Failed to load queue</div><div class="close-btn">X</div>';
     }
 }
 

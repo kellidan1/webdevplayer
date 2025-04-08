@@ -64,7 +64,7 @@ app.get('/callback', async (req, res) => {
     const data = await response.json();
     accessToken = data.access_token;
     refreshToken = data.refresh_token;
-    res.redirect('/'); // Redirect to home page after auth
+    res.redirect('/home.html'); // Redirect to home page after auth
   } catch (error) {
     console.error('Error during token exchange:', error);
     res.status(500).send('Authorization failed');
@@ -244,6 +244,37 @@ app.get('/user-playlists', checkToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching playlists:', error);
     res.status(500).send('Error fetching user playlists');
+  }
+});
+
+// 9. Fetch user's playback queue
+app.get('/queue', checkToken, async (req, res) => {
+  try {
+    const response = await fetch('https://api.spotify.com/v1/me/player/queue', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const queue = data.queue.map(track => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists.map(artist => artist.name).join(', '),
+      album: track.album.name,
+      image: track.album.images[0]?.url || '',
+    }));
+    res.json(queue);
+  } catch (error) {
+    console.error('Error fetching queue:', error);
+    if (error.message.includes('401')) {
+      console.log('Token expired, refreshing...');
+      await refreshAccessToken();
+      return res.redirect(req.originalUrl); // Retry after refresh
+    }
+    res.status(500).send('Error fetching queue');
   }
 });
 
