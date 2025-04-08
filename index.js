@@ -110,18 +110,19 @@ app.get('/current-song', checkToken, async (req, res) => {
 
     if (response.status === 204 || !response.ok) {
       console.log('No song playing or error, returning default response');
-      return res.json({ title: 'No song playing', artist: '', album: '', image: '', progress: 0, duration: 0 });
+      return res.json({ title: 'No song playing', artist: '', album: '', image: '', progress: 0, duration: 0, is_playing: false  });
     }
 
     const data = await response.json();
-    const { item, progress_ms, duration_ms } = data;
+    const { item, progress_ms, duration_ms, is_playing} = data;
     const songInfo = {
       title: item.name,
       artist: item.artists.map(artist => artist.name).join(', '),
       album: item.album.name,
       image: item.album.images[0]?.url || '',
       progress: Math.floor(progress_ms / 1000),
-      duration: Math.floor(duration_ms / 1000),
+      duration: Math.floor(item.duration_ms / 1000),
+      is_playing
     };
     res.json(songInfo);
   } catch (error) {

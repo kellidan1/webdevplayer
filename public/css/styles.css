@@ -167,7 +167,6 @@
     opacity: 1;
     border-radius: 50%;
     display: block;
-    transition: transform 0.05s linear;
 }
 
 .menu-wrapper {
@@ -381,4 +380,8 @@
 .current-time,
 .duration {
     font-size: 0.75rem;
+}
+
+.sidebar {
+    transition: all 0.3s ease;
 }
