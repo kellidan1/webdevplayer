@@ -114,7 +114,7 @@ app.get('/current-song', checkToken, async (req, res) => {
     }
 
     const data = await response.json();
-    const { item, progress_ms, duration_ms, is_playing} = data;
+    const { item, progress_ms, is_playing} = data;
     const songInfo = {
       title: item.name,
       artist: item.artists.map(artist => artist.name).join(', '),

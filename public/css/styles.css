@@ -138,26 +138,36 @@
     }
 }
 
+/* Needle Styling */
+.needle {
+    z-index: 999; /* Ensure it stays above the CD */
+    transition: transform 0.5s ease;
+    position: absolute; /* Position relative to cdCover */
+    top: 10%; /* Adjust to top-right corner of cdCover */
+    right: 3%; /* Adjust to top-right corner of cdCover */
+    width: 20%; /* Scale needle relative to cdCover */
+    height: auto; /* Maintain aspect ratio */
+    scale: 4;
+}
+
+/* Ensure cdCover is a positioning context for needle */
 .cdCover {
     width: 60vw;
-    /* Increased from 40vw to 60vw */
     height: 60vw;
     max-width: 700px;
-    /* Larger max */
     max-height: 700px;
     min-width: 250px;
-    /* Bigger minimum */
     min-height: 250px;
     background: rgba(33, 33, 33, 1);
     position: absolute;
     top: 5vh;
-    /* Slightly higher up */
     left: 50%;
     transform: translateX(-50%);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative; /* Add this to make it a positioning context */
 }
 
 .cd {
@@ -384,4 +394,9 @@
 
 .sidebar {
     transition: all 0.3s ease;
+}
+
+.theme-button:active {
+    transform: scale(0.95); /* Slight shrink on click for feedback */
+    transition: transform 0.1s ease;
 }

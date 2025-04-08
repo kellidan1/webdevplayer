@@ -9,6 +9,20 @@ const durationEl = document.querySelector('.duration');
 const vinyl = document.querySelector('.cd');
 const playButton = document.getElementById('play');
 let isPlaying = false; // Track playback state
+let currentSongKey = null; // To track song changes using title + artist
+const needle = document.querySelector('.needle');
+let animationActive = false; // Flag to control animation
+let lastRotation = 0; // Store the last rotation angle
+
+function moveNeedle(playState) {
+    needle.style.transformOrigin = '0% 50%';
+    if (playState) {
+        needle.style.transform = 'rotate(0deg)'; // Needle on disc (playing), aligned with center
+    } else {
+        needle.style.transform = 'rotate(-45deg)'; // Needle off disc (paused), lifted upward
+    }
+    needle.style.transformOrigin = '50% 50%';
+}
 
 // Menu button toggle and content switch
 buttons.forEach(button => {
@@ -30,17 +44,34 @@ async function fetchCurrentSong() {
     try {
         const response = await fetch('/current-song');
         const data = await response.json();
-        songTitle.textContent = data.title;
-        songArtist.textContent = data.artist;
-        console.log(data.duration, durationEl)
-        durationEl.textContent = formatTime(data.duration);
-        updateProgress(data.progress, data.duration);
+        songTitle.textContent = data.title || 'Unknown';
+        songArtist.textContent = data.artist || 'Unknown';
+        durationEl.textContent = formatTime(data.duration || 0);
+        updateProgress(data.progress || 0, data.duration || 1); // Avoid division by zero
         vinyl.src = data.image ?? 'images/default_disc_cover.png';
         // Update playback state if provided by backend
         if (typeof data.is_playing === 'boolean') {
             isPlaying = data.is_playing;
             playButton.classList.toggle('fa-play', !isPlaying);
             playButton.classList.toggle('fa-pause', isPlaying);
+            moveNeedle(isPlaying); // Update needle position based on play state
+            if (isPlaying && !animationActive) {
+                startAnimation(); // Start animation if not already active
+            } else if (!isPlaying && animationActive) {
+                stopAnimation(); // Stop animation if active
+            }
+        }
+        // Check if song changed and update sidebar if closed
+        const newSongKey = `${data.title}-${data.artist}`; // Unique key for song
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar && sidebar.style.borderRadius === '50%' && newSongKey !== currentSongKey) {
+            if (data.progress >= (data.duration || 1) - 1) { // Song is done (within 1 second)
+                const nextSongImage = await fetchNextSong();
+                sidebar.style.backgroundImage = `url(${nextSongImage})`;
+                currentSongKey = newSongKey;
+            }
+        } else if (newSongKey !== currentSongKey) {
+            currentSongKey = newSongKey; // Update only if song changes
         }
     } catch (error) {
         console.error('Error fetching song:', error);
@@ -51,30 +82,63 @@ async function fetchCurrentSong() {
 
 // Update progress bar and time
 function updateProgress(currentTime, duration) {
-    progress.style.width = (currentTime / duration) * 100 + '%';
-    currentTimeEl.textContent = formatTime(currentTime);
+    const width = duration ? (currentTime / duration) * 100 : 0; // Avoid NaN
+    progress.style.width = `${width}%`;
+    currentTimeEl.textContent = formatTime(currentTime || 0);
 }
 
 // Format time in MM:SS
 function formatTime(sec) {
     const minutes = Math.floor(sec / 60);
-    const seconds = sec % 60;
+    const seconds = Math.floor(sec % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 // Vinyl and album art animation
 let startTime = null;
+let animationFrameId = null;
+
 function animateVinyl(timestamp) {
     if (!startTime) startTime = timestamp;
     const elapsed = (timestamp - startTime) / 1000; // seconds
-    const rotation = (elapsed % 10) * 36; // Full rotation every 10 seconds
+    const rotation = lastRotation + (elapsed % 10) * 36; // Continue from last rotation
     vinyl.style.transform = `rotate(${rotation}deg)`;
     if (vinyl.style.display !== 'none') {
         vinyl.style.transform = `rotate(${rotation}deg)`;
     }
-    requestAnimationFrame(animateVinyl);
+    if (animationActive) {
+        animationFrameId = requestAnimationFrame(animateVinyl);
+    }
 }
-requestAnimationFrame(animateVinyl);
+
+function startAnimation() {
+    if (!animationActive) {
+        animationActive = true;
+        // Get the current rotation to continue from it
+        const currentTransform = window.getComputedStyle(vinyl).transform;
+        if (currentTransform && currentTransform !== 'none') {
+            const matrix = new WebKitCSSMatrix(currentTransform);
+            lastRotation = Math.round(Math.atan2(matrix.m21, matrix.m11) * (180 / Math.PI));
+        }
+        startTime = null; // Reset start time for new elapsed calculation
+        animationFrameId = requestAnimationFrame(animateVinyl);
+    }
+}
+
+function stopAnimation() {
+    if (animationActive) {
+        animationActive = false;
+        cancelAnimationFrame(animationFrameId);
+        // Preserve the last rotation by not resetting it
+        const currentTransform = window.getComputedStyle(vinyl).transform;
+        if (currentTransform && currentTransform !== 'none') {
+            const matrix = new WebKitCSSMatrix(currentTransform);
+            lastRotation = Math.round(Math.atan2(matrix.m21, matrix.m11) * (180 / Math.PI));
+        }
+    }
+}
+
+requestAnimationFrame(animateVinyl); // Initial call to start animation
 
 // Control button handlers with API calls
 document.getElementById('shuffle').addEventListener('click', () => {
@@ -101,11 +165,15 @@ playButton.addEventListener('click', async () => {
             const message = await response.text();
             console.log(message);
             isPlaying = false;
+            moveNeedle(false);
+            stopAnimation(); // Stop animation when paused
         } else {
             const response = await fetch('/play', { method: 'GET' });
             const message = await response.text();
             console.log(message);
             isPlaying = true;
+            moveNeedle(true);
+            startAnimation(); // Start animation when played
         }
         playButton.classList.toggle('fa-play', !isPlaying);
         playButton.classList.toggle('fa-pause', isPlaying);
@@ -138,6 +206,32 @@ document.getElementById('repeat').addEventListener('click', () => {
             fetchCurrentSong();
         })
         .catch(error => console.error('Error toggling repeat:', error));
+});
+
+// Add key bindings
+document.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case ' ':
+            event.preventDefault(); // Prevent spacebar from scrolling page
+            playButton.click(); // Trigger play/pause
+            break;
+        case 'ArrowRight':
+            document.getElementById('next').click(); // Trigger next
+            break;
+        case 'ArrowLeft':
+            document.getElementById('previous').click(); // Trigger previous
+            break;
+        case 's':
+        case 'S':
+            document.getElementById('shuffle').click(); // Trigger shuffle
+            break;
+        case 'r':
+        case 'R':
+            document.getElementById('repeat').click(); // Trigger repeat
+            break;
+        default:
+            break;
+    }
 });
 
 // Fetch user's playlists
@@ -180,7 +274,7 @@ async function fetchNextSong() {
     try {
         const response = await fetch('/queue');
         const queue = await response.json();
-        // Get the next song (second item in queue, assuming first is current)
+        // Get the next song (first item in queue since current song is playing)
         const nextSong = queue[0] || { image: 'images/default_disc_cover.png' };
         return nextSong.image || 'images/default-placeholder.png';
     } catch (error) {
@@ -193,11 +287,13 @@ async function fetchNextSong() {
 document.addEventListener('click', async (event) => {
     const sidebar = document.querySelector('.sidebar');
     const menuWrapper = document.querySelector('.menu-wrapper');
+    const closeBtn = document.querySelector('.close-btn');
     
     if (event.target.className === 'close-btn') {
         const nextSongImage = await fetchNextSong();
         
-        // Clear existing content and apply circular styling
+        // Clear existing content and remove close button
+        if (closeBtn) closeBtn.remove();
         contentWrapper.innerHTML = '';
         sidebar.style.width = '100px'; // Adjust size as needed
         sidebar.style.height = '100px';
@@ -247,6 +343,21 @@ document.addEventListener('click', async (event) => {
             fetchQueue();
         }
     }
+});
+
+// Theme button gradient functionality
+const themeButton = document.querySelector('.theme-button');
+const bg = document.querySelector('.bg');
+let currentIndex = 0;
+const colors = ['#2A3335', '#0A5EB0', '#0A97B0', '#FFCFEF'];
+
+themeButton.addEventListener('click', () => {
+    // Move to the next color index, looping back to 0
+    currentIndex = (currentIndex + 1) % colors.length;
+
+    // Apply gradient background using the current and next color
+    const nextIndex = (currentIndex + 1) % colors.length;
+    bg.style.background = `${colors[nextIndex]}`;
 });
 
 // Poll song info every 1 second
